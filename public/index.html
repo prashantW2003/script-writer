@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Script Generator</title>
+
+  <!-- Tailwind CDN (okay for testing) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-white">
+
+  <div class="max-w-2xl mx-auto mt-10 p-5">
+    <h1 class="text-3xl font-bold mb-4 text-center">Horror Script Generator</h1>
+
+    <!-- Textarea -->
+    <textarea id="userPrompt" class="w-full p-4 bg-gray-800 border border-gray-700 rounded-md"
+      placeholder="Enter your idea here..."></textarea>
+
+    <!-- Button -->
+    <button onclick="generate()" class="mt-4 w-full p-3 bg-red-600 hover:bg-red-700 rounded-md">
+      Generate Script
+    </button>
+
+    <!-- Output -->
+    <pre id="output" class="mt-6 p-4 bg-gray-800 border border-gray-700 rounded-md whitespace-pre-wrap"></pre>
+
+<button onclick="copyScript()" class="mt-3 w-full p-3 bg-blue-600 hover:bg-blue-700 rounded-md">
+  Copy Script
+</button>
+
+  </div>
+
+  <script>
+  async function generate() {
+    const prompt = document.getElementById("userPrompt").value.trim();
+    const output = document.getElementById("output");
+
+    output.innerText = "Generating...";
+
+    try {
+      const res = await fetch("http://localhost:5000/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt })
+      });
+
+      const data = await res.json();
+
+      const text =
+        data.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "No script returned.";
+
+      output.innerText = text;
+
+    } catch (err) {
+      output.innerText = "Failed to connect to backend.";
+    }
+  }
+
+  function copyScript() {
+    const text = document.getElementById("output").innerText;
+    navigator.clipboard.writeText(text);
+  }
+</script>
+
+
+</body>
+</html>
